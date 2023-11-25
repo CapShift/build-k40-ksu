@@ -63,8 +63,13 @@ jobs:
         run: |
           git clone --depth=1 -b ${{ inputs.kernel_tag }} ${{ inputs.git_url }} kernel-source
           git clone https://github.com/tiann/KernelSU kernel-source/KernelSU
-          cd kernel-source 
+          cd kernel-source
           ./KernelSU/kernel/setup.sh main
+          pushd KernelSU
+          KSU_VERSION=$((10000+200+`git rev-list --count HEAD`))
+          echo "KSU_VERSION: ${KSU_VERSION}"
+          echo "KSU_VERSION=${KSU_VERSION}" >> $GITHUB_ENV
+          popd
 
       - name: Make
         run: |
@@ -72,27 +77,26 @@ jobs:
           export PATH=${ClangHome}/bin:${PATH}
           cd kernel-source
           make LLVM=1 LLVM_IAS=1 O=out ARCH=arm64 SUBARCH=arm64 CC=clang LD=ld.lld ${{ inputs.config_name }}
-          make -j$(nproc) LLVM=1 LLVM_IAS=1 O=out ARCH=arm64 SUBARCH=arm64 CC=clang LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- KBUILD_BUILD_USER=hylab KBUILD_BUILD_HOST=localhost
+          DATA=$(TZ=Asia/Shanghai date "+%Y%m%d")
+          sed -i "s/CONFIG_LOCALVERSION=*/CONFIG_LOCALVERSION=\"_alioth_kernelsu_sharpeter_${DATA}\"/g" out/.config
+          scripts/config --file out/.config -d LOCALVERSION_AUTO -d CONFIG_DEBUG_FS -e CONFIG_OVERLAY_FS -e CONFIG_KSU -e CONFIG_MODULES -e CONFIG_KPROBES -e CONFIG_HAVE_KPROBES -e CONFIG_KPROBE_EVENTS
+          make -j$(nproc) LLVM=1 LLVM_IAS=1 O=out ARCH=arm64 SUBARCH=arm64 CC=clang LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- KBUILD_BUILD_USER=Sharpeter KBUILD_BUILD_HOST=GithubAction
 
-      - name: Patch Boot
+
+      - name: AnyKernel3
         run: |
-          chmod +x ./magiskboot
-          unzip boot.zip
-          cp -rf kernel-source/out/arch/arm64/boot/Image ./Image
-          cp -rf kernel-source/out/arch/arm64/boot/dtbo.img ./dtbo.img
-          ./magiskboot unpack boot.img
-          rm -rf kernel
-          mv Image kernel
-          ./magiskboot repack boot.img
-          rm -rf ramdisk.cpio boot.img
-          mv kernel Image
+          TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")
+          FINAL_ZIPNAME="AliothKernel_KernelSU_${{ env.KSU_VERSION }}_${TIME}"
+          echo "TIME=${TIME}" >> $GITHUB_ENV
+          echo "FINAL_ZIPNAME="AliothKernel_KernelSU_${{ env.KSU_VERSION }}_${TIME}"" >> $GITHUB_ENV
 
-      - name: Zip
-        run: |
-          zip -r -9 -q -o Kernel.zip new-boot.img Image
+          git clone https://github.com/CapShift/anykernel_alioth.git AnyKernel3
+          cp -rf kernel-source/out/arch/arm64/boot/Image AnyKernel3/
+          cp -rf kernel-source/out/arch/arm64/boot/dtbo.img AnyKernel3/
 
-      - name: Kernel REL
-        uses: actions/upload-artifact@v3
+
+      - name: Upload AnyKernel3 Recovery Flasher Artifact
+        uses: actions/upload-artifact@v3.1.2
         with:
-          name: ${{ inputs.config_name }} KernelSU
-          path: ./Kernel.zip
+          name: ${{ env.FINAL_ZIPNAME }}
+          path: ./AnyKernel3/*
