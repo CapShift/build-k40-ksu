@@ -23,6 +23,11 @@ on:
         required: false
         type: string
         default: 'https://github.com/XSans0/WeebX-Clang/releases/download/WeebX-Clang-17.0.4-release/WeebX-Clang-17.0.4.tar.gz'
+      batt_capacity:
+        description: '修改电池容量(mAh)'
+        required: false
+        type: string
+        default: '4520'
 
 jobs:
 
@@ -64,6 +69,10 @@ jobs:
           git clone --depth=1 -b ${{ inputs.kernel_tag }} ${{ inputs.git_url }} kernel-source
           git clone https://github.com/tiann/KernelSU kernel-source/KernelSU
           cd kernel-source
+
+          sed -i '767s/.*/      *learned_cap_uah =  ${{ inputs.batt_capacity }} * 1000;/' drivers/power/supply/qcom/qpnp-fg-gen4.c
+          sed -i '28s/.*/	qcom,nom-batt-capacity-mah = < ${{ inputs.batt_capacity }} >;/' arch/arm64/boot/dts/vendor/qcom/fg-gen4-batterydata-alioth-FMT-4520mah.dtsi
+
           ./KernelSU/kernel/setup.sh main
           pushd KernelSU
           KSU_VERSION=$((10000+200+`git rev-list --count HEAD`))
