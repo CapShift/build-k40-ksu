@@ -70,8 +70,8 @@ jobs:
           git clone https://github.com/tiann/KernelSU kernel-source/KernelSU
           cd kernel-source
 
-          #sed -i '767s/.*/      *learned_cap_uah =  ${{ inputs.batt_capacity }} * 1000;/' drivers/power/supply/qcom/qpnp-fg-gen4.c
-          #sed -i '28s/.*/	qcom,nom-batt-capacity-mah = < ${{ inputs.batt_capacity }} >;/' arch/arm64/boot/dts/vendor/qcom/fg-gen4-batterydata-alioth-FMT-4520mah.dtsi
+          sed -i '767s/.*/      *learned_cap_uah =  ${{ inputs.batt_capacity }} * 1000;/' drivers/power/supply/qcom/qpnp-fg-gen4.c
+          sed -i '28s/.*/	qcom,nom-batt-capacity-mah = < ${{ inputs.batt_capacity }} >;/' arch/arm64/boot/dts/vendor/qcom/fg-gen4-batterydata-alioth-FMT-4520mah.dtsi
 
           ./KernelSU/kernel/setup.sh main
           pushd KernelSU
@@ -102,7 +102,7 @@ jobs:
           git clone https://github.com/CapShift/anykernel_alioth.git AnyKernel3
           rm -rf AnyKernel3/.git AnyKernel3/README.md
           cp -rf kernel-source/out/arch/arm64/boot/Image AnyKernel3/
-          #cp -rf kernel-source/out/arch/arm64/boot/dtbo.img AnyKernel3/
+          cp -rf kernel-source/out/arch/arm64/boot/dtbo.img AnyKernel3/
 
 
       - name: Upload AnyKernel3 Recovery Flasher Artifact
