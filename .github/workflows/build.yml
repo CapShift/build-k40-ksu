@@ -7,7 +7,7 @@ on:
         description: '内核代码分支/Tag'
         required: false
         type: string
-        default: 'master'
+        default: 'CapShift-5160mAh'
       config_name:
         description: '内核编译配置文件名'
         required: false
@@ -17,7 +17,7 @@ on:
         description: '内核仓库地址'
         required: false
         type: string
-        default: 'https://github.com/zfdx123/kernel_xiaomi_alioth.git'
+        default: 'https://github.com/CapShift/kernel_xiaomi_alioth_zfdx123.git'
       clang_url:
         description: '编译器下载地址'
         required: false
@@ -27,7 +27,7 @@ on:
         description: '修改电池容量(mAh)'
         required: false
         type: string
-        default: '4520'
+        default: '5160'
 
 jobs:
 
@@ -70,8 +70,8 @@ jobs:
           git clone https://github.com/tiann/KernelSU kernel-source/KernelSU
           cd kernel-source
 
-          sed -i '767s/.*/      *learned_cap_uah =  ${{ inputs.batt_capacity }} * 1000;/' drivers/power/supply/qcom/qpnp-fg-gen4.c
-          sed -i '28s/.*/	qcom,nom-batt-capacity-mah = < ${{ inputs.batt_capacity }} >;/' arch/arm64/boot/dts/vendor/qcom/fg-gen4-batterydata-alioth-FMT-4520mah.dtsi
+          #sed -i '767s/.*/      *learned_cap_uah =  ${{ inputs.batt_capacity }} * 1000;/' drivers/power/supply/qcom/qpnp-fg-gen4.c
+          #sed -i '28s/.*/	qcom,nom-batt-capacity-mah = < ${{ inputs.batt_capacity }} >;/' arch/arm64/boot/dts/vendor/qcom/fg-gen4-batterydata-alioth-FMT-4520mah.dtsi
 
           ./KernelSU/kernel/setup.sh main
           pushd KernelSU
@@ -100,8 +100,9 @@ jobs:
           echo "FINAL_ZIPNAME="AliothKernel_KernelSU_${{ env.KSU_VERSION }}_${TIME}"" >> $GITHUB_ENV
 
           git clone https://github.com/CapShift/anykernel_alioth.git AnyKernel3
+          rm -rf AnyKernel3/.git AnyKernel3/README.md
           cp -rf kernel-source/out/arch/arm64/boot/Image AnyKernel3/
-          cp -rf kernel-source/out/arch/arm64/boot/dtbo.img AnyKernel3/
+          #cp -rf kernel-source/out/arch/arm64/boot/dtbo.img AnyKernel3/
 
 
       - name: Upload AnyKernel3 Recovery Flasher Artifact
