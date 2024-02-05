@@ -1,4 +1,4 @@
-name: Build K40 Kernel
+name: InfiniR_Ksu_Alioth
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         type: string
         default: '14.0-alioth'
       config_name:
-        description: '内核编译配置文件名'
+        description: '内核编译配置/Defconfig'
         required: false
         type: string
         default: 'alioth_defconfig'
@@ -33,7 +33,7 @@ jobs:
 
   build_kernel:
 
-    name: Build K40 Kernel
+    name: InfiniR
 
     runs-on: ubuntu-22.04
 
@@ -87,7 +87,7 @@ jobs:
           cd kernel-source
           make LLVM=1 LLVM_IAS=1 O=out ARCH=arm64 SUBARCH=arm64 CC=clang LD=ld.lld ${{ inputs.config_name }}
           DATA=$(TZ=Asia/Shanghai date "+%Y%m%d")
-          sed -i "s/CONFIG_LOCALVERSION=*/CONFIG_LOCALVERSION=\"_alioth_kernelsu_sharpeter_${DATA}\"/g" out/.config
+          sed -i "s/CONFIG_LOCALVERSION=*/CONFIG_LOCALVERSION=\"_InfiniR@Ksu_Sharpeter_${DATA}\"/g" out/.config
           scripts/config --file out/.config -d LOCALVERSION_AUTO -d CONFIG_DEBUG_FS -e CONFIG_OVERLAY_FS -e CONFIG_KSU -e CONFIG_MODULES -e CONFIG_KPROBES -e CONFIG_HAVE_KPROBES -e CONFIG_KPROBE_EVENTS
           make -j$(nproc) LLVM=1 LLVM_IAS=1 O=out ARCH=arm64 SUBARCH=arm64 CC=clang LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- KBUILD_BUILD_USER=Sharpeter KBUILD_BUILD_HOST=GithubAction
 
@@ -95,12 +95,12 @@ jobs:
       - name: AnyKernel3
         run: |
           TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")
-          FINAL_ZIPNAME="AliothKernel_KernelSU_${{ env.KSU_VERSION }}_${TIME}"
+          FINAL_ZIPNAME="AliothKernel_InfiniR_KernelSU_${{ env.KSU_VERSION }}_${TIME}"
           echo "TIME=${TIME}" >> $GITHUB_ENV
-          echo "FINAL_ZIPNAME="AliothKernel_KernelSU_${{ env.KSU_VERSION }}_${TIME}"" >> $GITHUB_ENV
+          echo "FINAL_ZIPNAME="AliothKernel_InfiniR_KernelSU_${{ env.KSU_VERSION }}_${TIME}"" >> $GITHUB_ENV
 
           git clone https://github.com/CapShift/anykernel_alioth.git AnyKernel3
-          rm -rf AnyKernel3/.git AnyKernel3/README.md
+          rm -rf AnyKernel3/.git AnyKernel3/README.md 1.patch
 
           cp -rf kernel-source/out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
           #cp -rf kernel-source/out/arch/arm64/boot/dtbo.img AnyKernel3/
