@@ -107,7 +107,7 @@ jobs:
 
 
       - name: Upload AnyKernel3 Recovery Flasher Artifact
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.FINAL_ZIPNAME }}
           path: ./AnyKernel3/*
