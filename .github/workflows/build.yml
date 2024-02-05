@@ -1,4 +1,4 @@
-name: InfiniR_Ksu_Alioth
+name: Alioth
 
 on:
   workflow_dispatch:
