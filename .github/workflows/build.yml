@@ -1,4 +1,4 @@
-name: Build K40 Kernel
+name: Alioth
 
 on:
   workflow_dispatch:
