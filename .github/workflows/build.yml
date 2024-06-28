@@ -67,13 +67,15 @@ jobs:
       - name: Clone Kernel
         run: |
           git clone --depth=1 -b ${{ inputs.kernel_tag }} ${{ inputs.git_url }} kernel-source
-          git clone https://github.com/tiann/KernelSU kernel-source/KernelSU
+          #git clone https://github.com/tiann/KernelSU kernel-source/KernelSU
+
           cd kernel-source
 
           #sed -i '767s/.*/      *learned_cap_uah =  ${{ inputs.batt_capacity }} * 1000;/' drivers/power/supply/qcom/qpnp-fg-gen4.c
           #sed -i '28s/.*/	qcom,nom-batt-capacity-mah = < ${{ inputs.batt_capacity }} >;/' arch/arm64/boot/dts/vendor/qcom/fg-gen4-batterydata-alioth-FMT-4520mah.dtsi
 
-          ./KernelSU/kernel/setup.sh main
+          #./KernelSU/kernel/setup.sh main
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
           pushd KernelSU
           KSU_VERSION=$((10000+200+`git rev-list --count HEAD`))
           echo "KSU_VERSION: ${KSU_VERSION}"
