@@ -22,7 +22,7 @@ on:
         description: '编译器下载地址'
         required: false
         type: string
-        default: 'https://github.com/XSans0/WeebX-Clang/releases/download/WeebX-Clang-17.0.4-release/WeebX-Clang-17.0.4.tar.gz'
+        default: 'https://github.com/XSans0/WeebX-Clang/releases/download/WeebX-Clang-18.1.8-release/WeebX-Clang-18.1.8.tar.gz'
 
 jobs:
 
@@ -62,9 +62,10 @@ jobs:
       - name: Clone Kernel
         run: |
           git clone --depth=1 -b ${{ inputs.kernel_tag }} ${{ inputs.git_url }} kernel-source
-          git clone https://github.com/tiann/KernelSU kernel-source/KernelSU
+          #git clone https://github.com/tiann/KernelSU kernel-source/KernelSU
           cd kernel-source 
-          ./KernelSU/kernel/setup.sh main
+          #./KernelSU/kernel/setup.sh main
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
 
       - name: Make
         run: |
